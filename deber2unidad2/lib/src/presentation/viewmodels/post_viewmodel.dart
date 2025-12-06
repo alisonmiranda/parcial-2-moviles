@@ -11,6 +11,11 @@ class PokemonViewModel extends BaseViewModel {
   PokemonEntity? selectedPokemon;
   String? errorMessage;
 
+  int _offset = 0;
+  final int _limit = 20;
+  bool _isLoadingMore = false;
+  bool get isLoadingMore => _isLoadingMore;
+
   PokemonViewModel({
     required this.getPokemonsUseCase,
     required this.getPokemonByIdUseCase,
@@ -19,13 +24,33 @@ class PokemonViewModel extends BaseViewModel {
   Future<void> cargarPokemons() async {
     setLoading(true);
     errorMessage = null;
+    _offset = 0;
     try {
-      pokemons = await getPokemonsUseCase();
+      pokemons = await getPokemonsUseCase(limit: _limit, offset: _offset);
+      _offset += _limit;
     } catch (e) {
       errorMessage = 'Error al cargar pokémon: $e';
       pokemons = [];
     }
     setLoading(false);
+  }
+
+  Future<void> cargarMasPokemons() async {
+    if (_isLoadingMore) return;
+
+    _isLoadingMore = true;
+    notifyListeners();
+
+    try {
+      final newPokemons = await getPokemonsUseCase(limit: _limit, offset: _offset);
+      pokemons.addAll(newPokemons);
+      _offset += _limit;
+    } catch (e) {
+      // Opcional: manejar el error de "cargar más" de alguna manera
+    } finally {
+      _isLoadingMore = false;
+      notifyListeners();
+    }
   }
 
   Future<void> cargarPokemonPorId(int id) async {

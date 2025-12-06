@@ -8,8 +8,8 @@ class PokemonRepositoryImpl implements BaseRepository {
   PokemonRepositoryImpl(this.ds);
 
   @override
-  Future<List<PokemonEntity>> getPokemons() {
-    return ds.fetchPokemons();
+  Future<List<PokemonEntity>> getPokemons({required int limit, required int offset}) {
+    return ds.fetchPokemons(limit: limit, offset: offset);
   }
 
   @override

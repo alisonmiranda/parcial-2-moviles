@@ -7,10 +7,10 @@ class PokemonApiDataSource implements BaseDataSource {
   final String baseUrl = "https://pokeapi.co/api/v2/pokemon";
 
   @override
-  Future<List<PokemonModel>> fetchPokemons() async {
+  Future<List<PokemonModel>> fetchPokemons({int limit = 20, int offset = 0}) async {
     try {
-      // Obtener la lista de los primeros 20 Pokémon
-      final url = Uri.parse("$baseUrl?limit=20");
+      // Obtener la lista de Pokémon con paginación
+      final url = Uri.parse("$baseUrl?limit=$limit&offset=$offset");
       final resp = await http.get(url);
 
       if (resp.statusCode != 200) {
@@ -22,13 +22,14 @@ class PokemonApiDataSource implements BaseDataSource {
       
       // Obtener detalles de cada Pokémon
       List<PokemonModel> pokemons = [];
-      for (var i = 0; i < results.length && i < 20; i++) {
+      for (var result in results) {
         try {
-          final detailResp = await http.get(Uri.parse(results[i]['url']));
+          final detailResp = await http.get(Uri.parse(result['url']));
           if (detailResp.statusCode == 200) {
             pokemons.add(PokemonModel.fromJson(json.decode(detailResp.body)));
           }
         } catch (e) {
+          // Si falla la obtención de un pokémon, se continúa con el siguiente.
           continue;
         }
       }

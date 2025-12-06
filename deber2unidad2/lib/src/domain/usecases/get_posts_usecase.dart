@@ -6,7 +6,7 @@ class GetPokemonsUseCase {
 
   GetPokemonsUseCase(this.repository);
 
-  Future<List<PokemonEntity>> call() {
-    return repository.getPokemons();
+  Future<List<PokemonEntity>> call({required int limit, required int offset}) {
+    return repository.getPokemons(limit: limit, offset: offset);
   }
 }
